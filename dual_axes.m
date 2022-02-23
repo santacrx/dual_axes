@@ -1,45 +1,58 @@
-function dual_axes(gca,pTitle,pType,conv,name,varargin)
-% dual_axes: adds a unit converted second axis to either y or x, or both.
-% The second converted axis is placed opposed or on the same side as the
-% main one. Axes are linked and can be panned and returned to home.
-% Opposed: the main x-axis is at the bottom and the added generated one by
-% this funcion will be at the top of the plotting area; the second y-axis
-% will be added to the right.
-% Same: the generated axis will be placed offset from the main one to the
-% left (if y) or below (if x).
+function dual_axes(pAx,pTitle,pType,conv,name,varargin)
+% Syntax:
+% =======
+%   dual_axes(Axis,Title,Type,Conversion,Name,...)
 %
-% NOTE: Title must be fed and called by the function. If no title is
-% desired, feed a blank ([]) or empty string ('')
+% Description: 
+% ============
+% Adds a unit converted second axis to either y or x, or both. The second
+% converted axis is placed opposed or on the same side as the main one. 
+% Axes are linked and can be panned and returned to home. 
+%   -Opposed: the main x-axis is at the bottom and the added generated one
+%    by this funcion will be at the top of the plotting area; the second
+%    y-axis will be added to the right.
+%   -Same: the generated axis will be placed offset from the main one to 
+%    the left (if y) or below (if x).
 %
-% INPUTS:
-%   gca     this must be in, current figure axis information
-%   pTitle  Figure title. DO NOT CALL TITLE OUTSIDE OF THIS!
-%   pType   'x','y', or 'xy' for opposed to main axes;
-%           'xs','ys', or 'xys' for same side as maun axes;
-%   conv    Conversion factor from unit on plot to the one you want
-%   name    New unit label
-%   [conv2] Y-axis conversion factor when 'xy' or 'xys' is selected
-%   [name2] Y-axis label when 'xy' or 'xys' is selected
+%   Notes:
+%   -Title must be fed and called by the function. If no title is
+%    desired, feed a blank ([]) or empty string ('')
+%   -All other modifiers need to be called BEFORE this function
 %
-% OUTPUTS:
+% Inputs:
+% =======
+%   Axis        Axis handler where to insert dual_axes
+%   Title       Figure title. DO NOT CALL TITLE OUTSIDE OF THIS!
+%   Type        'x','y', or 'xy' for opposed to main axes;
+%               'xs','ys', or 'xys' for same side as maun axes;
+%   Conversion  Conversion factor from unit on plot to the one you want
+%   Name        New unit label
+%   [conv2]     Y-axis conversion factor when 'xy' or 'xys' is selected
+%   [name2]     Y-axis label when 'xy' or 'xys' is selected
+%
+% Outputs:
+% ========
 %   N/A
 %
-% USAGE:
+% Usage:
+% ======
 %   You must call this function AFTER all figure modifiers (i.e: legends,
 %   limits, labels, etc.) EXCEPT title. This function calls the title, if
 %   no title is desired, enter a blank (i.e.: [])
-%   1) x: X-axis
+%   1) 'x' OR 'xs': X-axis
 %       dual_axes(gca,[],'x',1/.7457,'Power [hp]')
-%   2) y or ys: Y-axis
+%   2) 'y' OR 'ys': Y-axis
 %       dual_axes(gca,[],'y',0.0016,'SFC [lb/hp-hr]')
-%   3) xy: Both Axes
+%   3) 'xy' OR 'xys': Both Axes
 %       dual_axes(gca,[],'xy',1/.7457,'Power [hp]',0.0016,'SFC [lb/hp-hr]')
 %
 % Author: XSantacruz (santacrx@gmail.com)
-% Revison: 3.0 - 20210930
+% Revison: 3.1 - 20220222
 %
-% EXAMPLES (you can copy this code and paste it into the command window or
-% select it and hit F9 on your keyboard):
+% Examples:
+% =========
+% You can copy this code and paste it into the command window or
+% select it and hit F9 on your keyboard:
 %
 %   %both axes, opposed
 %   figure;
@@ -52,6 +65,7 @@ function dual_axes(gca,pTitle,pType,conv,name,varargin)
 %   ylabel('Y Units 1');
 %   dual_axes(gca,'Random Plot, Opposed Dual Axes',...
 %       'xy',20,'X Unit 2',400,'Y Unit 2');
+%
 %   %both axes, same
 %   figure;
 %   x=0:0.1:10;
@@ -113,10 +127,10 @@ function dual_axes(gca,pTitle,pType,conv,name,varargin)
 %       'ys',400,'Y Unit 2');
 
 %grab gca data
-ax(1) = gca;
+ax(1) = pAx;
 
 %Check inputs are correct
-if rem(length(varargin),2)==0
+if rem(length(varargin),2)==0 && nargin>=5
     %load inputs
     if length(varargin)>=2
         conv2=varargin{1};
@@ -143,7 +157,7 @@ if rem(length(varargin),2)==0
                 set(get(ax(2),'xlabel'),'string',name);
                 xlim(ax(2),get(ax(1),'XLim').*conv);
             catch
-                disp(' *!* dual_axes ERROR: wrong input data-type');
+                warning(' *!* dual_axes ERROR: wrong input data-type');
                 return
             end
         case 'xs'
@@ -159,11 +173,13 @@ if rem(length(varargin),2)==0
                 set(get(ax(2),'xlabel'),'string',name);
                 xlim(ax(2),get(ax(1),'XLim').*conv);
             catch
-                disp(' *!* dual_axes ERROR: wrong input data-type');
+                warning(' *!* dual_axes ERROR: wrong input data-type');
                 return
             end
         case 'y'
             try
+                %grab current axis position and crop left
+                ax(1).Position = ax(1).Position + [0 0 -.05 0];
                 %place new axis on top, hide x axis, put y axis to the right
                 ax(2) = axes('Position',ax(1).Position,...
                     'YAxisLocation','right',...
@@ -176,7 +192,7 @@ if rem(length(varargin),2)==0
                 ylim(ax(2),get(ax(1),'YLim').*conv);
                 ylim(ax(1),oYLim);
             catch
-                disp(' *!* dual_axes ERROR: wrong input data-type');
+                warning(' *!* dual_axes ERROR: wrong input data-type');
                 return
             end
         case 'ys'
@@ -195,7 +211,7 @@ if rem(length(varargin),2)==0
                 ylim(ax(2),get(ax(1),'YLim').*conv);
                 
             catch
-                disp(' *!* dual_axes ERROR: wrong input data-type');
+                warning(' *!* dual_axes ERROR: wrong input data-type');
                 return
             end
         case 'xy'
@@ -213,7 +229,7 @@ if rem(length(varargin),2)==0
                 set(get(ax(2),'xlabel'),'string',name);
                 axis(ax(2),[get(ax(1),'XLim').*conv, get(ax(1),'YLim').*conv2]);
             catch
-                disp(' *!* dual_axes ERROR: wrong input data-type');
+                warning(' *!* dual_axes ERROR: wrong input data-type');
                 return
             end
         case 'xys'
@@ -240,23 +256,26 @@ if rem(length(varargin),2)==0
                 set(get(ax(3),'ylabel'),'string',name2);
                 ylim(ax(3),get(ax(1),'YLim').*conv2);
             catch
-                disp(' *!* dual_axes ERROR: wrong input data-type');
+                warning(' *!* dual_axes ERROR: wrong input data-type');
                 return
             end
         otherwise
             %add title and do nothing else
             %plot title if it's not empty
             if ~isempty(pTitle), title(pTitle); end
-            disp(' *!* dual_axes ERROR: wrong plot type call');
+            warning(' *!* dual_axes ERROR: wrong plot type call');
             return
     end
+    % {
     %If it involves a top crop for x up top, now add the title
     if strcmp(pType,'xy') || strcmp(pType,'x')
         %plot title if it's not empty
         if ~isempty(pTitle), title(pTitle); end
     end
-    
+    %}
+    % {
     %Link the dual axes together for panning and zooming.
+    try
     for a=2:length(ax)
         %Remove interactions of other axis
         ax(a).Interactions = [];
@@ -282,11 +301,15 @@ if rem(length(varargin),2)==0
             restoreButtonHandle.ButtonPushedFcn = ...
                 {@myRestoreButtonCallbackFcn, ax(a), originalRestoreFcn, xyscale};
         end
-        %}
+        % }
     end
-    
+    catch ME
+        rethrow(ME)
+    end
+    %}
+    disp(' - Dual Axes Completed Succesfully');
 else
-    disp(' *!* dual_axes ERROR: wrong number of inputs');
+    warning(' *!* dual_axes ERROR: wrong number of inputs');
     return
 end
 %focus on original axis if the user wants to explore data before continuing
