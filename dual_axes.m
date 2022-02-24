@@ -46,8 +46,10 @@ function dual_axes(pAx,pTitle,pType,conv,name,varargin)
 %   3) 'xy' OR 'xys': Both Axes
 %       dual_axes(gca,[],'xy',1/.7457,'Power [hp]',0.0016,'SFC [lb/hp-hr]')
 %
+%--------------------------------------------------------------------------
 % Author: XSantacruz (santacrx@gmail.com)
 % Revison: 3.1 - 20220222
+%--------------------------------------------------------------------------
 %
 % Examples:
 % =========
