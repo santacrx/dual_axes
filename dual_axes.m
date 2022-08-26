@@ -1,55 +1,62 @@
-function dual_axes(pAx,pTitle,pType,conv,name,varargin)
+function varargout = dual_axes(pAx,pTitle,pType,conv,name,varargin)
 % Syntax:
 % =======
 %   dual_axes(Axis,Title,Type,Conversion,Name,...)
+%   dax = dual_axes(Axis,Title,Type,Conversion,Name,...)
 %
 % Description: 
 % ============
 % Adds a unit converted second axis to either y or x, or both. The second
 % converted axis is placed opposed or on the same side as the main one. 
 % Axes are linked and can be panned and returned to home. 
-%   -Opposed: the main x-axis is at the bottom and the added generated one
-%    by this funcion will be at the top of the plotting area; the second
-%    y-axis will be added to the right.
-%   -Same: the generated axis will be placed offset from the main one to 
-%    the left (if y) or below (if x).
 %
-%   Notes:
-%   -Title must be fed and called by the function. If no title is
-%    desired, feed a blank ([]) or empty string ('')
-%   -All other modifiers need to be called BEFORE this function
+% *Opposed: the main x-axis is at the bottom and the added generated one
+% by this funcion will be at the top of the plotting area; the second
+% y-axis will be added to the right.
+%
+% *Same: the generated axis will be placed offset from the main one to 
+% the left (if y) or below (if x).
+%
+% Notes:
+% *Title must be fed and called by the function. If no title is desired, 
+% feed a blank ([]) or empty string ('')
+% *All other modifiers need to be called BEFORE this function
+%
 %
 % Inputs:
 % =======
-%   Axis        Axis handler where to insert dual_axes
-%   Title       Figure title. DO NOT CALL TITLE OUTSIDE OF THIS!
-%   Type        'x','y', or 'xy' for opposed to main axes;
-%               'xs','ys', or 'xys' for same side as maun axes;
-%   Conversion  Conversion factor from unit on plot to the one you want
-%   Name        New unit label
-%   [conv2]     Y-axis conversion factor when 'xy' or 'xys' is selected
-%   [name2]     Y-axis label when 'xy' or 'xys' is selected
+%  *Axis        Axis handler where to insert dual_axes
+%  *Title       Figure title. DO NOT CALL TITLE OUTSIDE OF THIS!
+%  *Type        'x','y', or 'xy' for opposed to main axes;
+%              'xs','ys', or 'xys' for same side as maun axes;
+%  *Conversion  Conversion factor from unit on plot to the one you want
+%  *Name        New unit label
+%  *[conv2]     Y-axis conversion factor when 'xy' or 'xys' is selected
+%  *[name2]     Y-axis label when 'xy' or 'xys' is selected
+%
 %
 % Outputs:
 % ========
-%   N/A
+%  *[Axis]      Axis handler(s) of dual if needed to access properties
+%
 %
 % Usage:
 % ======
-%   You must call this function AFTER all figure modifiers (i.e: legends,
-%   limits, labels, etc.) EXCEPT title. This function calls the title, if
-%   no title is desired, enter a blank (i.e.: [])
-%   1) 'x' OR 'xs': X-axis
+% You must call this function AFTER all figure modifiers (i.e: legends,
+% limits, labels, etc.) EXCEPT title. This function calls the title, if
+% no title is desired, enter a blank (i.e.: [])
+% 1) 'x' OR 'xs': X-axis
 %       dual_axes(gca,[],'x',1/.7457,'Power [hp]')
-%   2) 'y' OR 'ys': Y-axis
+% 2) 'y' OR 'ys': Y-axis
 %       dual_axes(gca,[],'y',0.0016,'SFC [lb/hp-hr]')
-%   3) 'xy' OR 'xys': Both Axes
+% 3) 'xy' OR 'xys': Both Axes
 %       dual_axes(gca,[],'xy',1/.7457,'Power [hp]',0.0016,'SFC [lb/hp-hr]')
 %
 %--------------------------------------------------------------------------
 % Author: XSantacruz (santacrx@gmail.com)
-% Revison: 3.1 - 20220222
+% Revison: 3.3 - 20220331
 %--------------------------------------------------------------------------
+%
 %
 % Examples:
 % =========
@@ -127,6 +134,9 @@ function dual_axes(pAx,pTitle,pType,conv,name,varargin)
 %   ylabel('Y Units 1');
 %   dual_axes(gca,'Random Plot, Same Y-Axis Only',...
 %       'ys',400,'Y Unit 2');
+
+
+%=== BEGIN SCRIPT ===
 
 %grab gca data
 ax(1) = pAx;
@@ -309,11 +319,21 @@ if rem(length(varargin),2)==0 && nargin>=5
         rethrow(ME)
     end
     %}
-    disp(' - Dual Axes Completed Succesfully');
+    %disp(' - Dual Axes Completed Succesfully');
 else
     warning(' *!* dual_axes ERROR: wrong number of inputs');
     return
 end
+
+%if there are any expected outputs, try to output the axis handlers
+if nargin>0
+    try
+        varargout{1}=ax(2:end);
+    catch
+        warning('Failed to output handlers. Check only one output is expected');
+    end
+end
+
 %focus on original axis if the user wants to explore data before continuing
 axes(ax(1));
 return
